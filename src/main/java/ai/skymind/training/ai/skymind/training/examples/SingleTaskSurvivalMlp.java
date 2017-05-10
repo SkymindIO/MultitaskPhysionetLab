@@ -1,4 +1,4 @@
-package ai.skymind.training.solutions;
+package ai.skymind.training.ai.skymind.training.examples;
 
 import org.datavec.api.records.reader.impl.csv.CSVRecordReader;
 import org.datavec.api.split.NumberedFileInputSplit;
@@ -46,9 +46,9 @@ import java.io.IOException;
  *
  * Author: Dave Kale (dave@skymind.io)
  */
-public class SingleTaskSurvivalModel {
+public class SingleTaskSurvivalMlp {
     // For logging with SL4J
-    private static final Logger log = LoggerFactory.getLogger(SingleTaskSurvivalModel.class);
+    private static final Logger log = LoggerFactory.getLogger(SingleTaskSurvivalMlp.class);
 
     // Number of training, validation, test examples
     public static final int NB_TRAIN_EXAMPLES = 3200;

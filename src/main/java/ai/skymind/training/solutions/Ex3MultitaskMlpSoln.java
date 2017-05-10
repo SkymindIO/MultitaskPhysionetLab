@@ -41,9 +41,9 @@ import java.io.IOException;
  *
  * Author: Dave Kale (dave@skymind.io)
  */
-public class MultitaskModel {
+public class Ex3MultitaskMlpSoln {
     // For logging with SL4J
-    private static final Logger log = LoggerFactory.getLogger(MultitaskModel.class);
+    private static final Logger log = LoggerFactory.getLogger(Ex3MultitaskMlpSoln.class);
 
     // Number of training, validation, test examples
     public static final int NB_TRAIN_EXAMPLES = 3200;
@@ -75,17 +75,7 @@ public class MultitaskModel {
 
     public static void main(String[] args) throws IOException, InterruptedException {
 
-        /* A common DL4J/DataVec ETL pattern: each record is stored in CSV format in
-         * a distinct numbered file, and features and labels are stored separately.
-         *
-         * We first create NumberedFileSplit and pass in the range of file numbers
-         * that should be processed. We create a CSVRecordReader (these data are stored
-         * in CSV format) and initialize it using the split. Finally, we pass the record
-         * readers to a data set iterator. In this case, since features and labels are
-         * stored separately, we use a multi-dataset iterator.
-         *
-         * This is for the training split, which covers file numbers 0-3199.
-         */
+        // Training split, which covers file numbers 0-3199.
         CSVRecordReader trainFeatures = new CSVRecordReader();
         trainFeatures.initialize(new NumberedFileInputSplit(featuresDir.getAbsolutePath() + "/%d.csv", 0, NB_TRAIN_EXAMPLES - 1));
         CSVRecordReader trainMortalityLabels = new CSVRecordReader();
@@ -125,7 +115,7 @@ public class MultitaskModel {
                 .addOutputOneHot("validSurvivalLabels", 0, NB_SURVIVAL_TARGETS)
                 .build();
 
-        // Validation (tuning) split, which covers file numbers 3200-3599.
+        // Test (held out) split, which covers file numbers 3600-3999.
         CSVRecordReader testFeatures = new CSVRecordReader();
         testFeatures.initialize(new NumberedFileInputSplit(featuresDir.getAbsolutePath() + "/%d.csv", NB_TRAIN_EXAMPLES + NB_VALID_EXAMPLES, NB_TRAIN_EXAMPLES + NB_VALID_EXAMPLES + NB_TEST_EXAMPLES - 1));
         CSVRecordReader testMortalityLabels = new CSVRecordReader();
@@ -145,18 +135,7 @@ public class MultitaskModel {
                 .addOutputOneHot("testSurvivalLabels", 0, NB_SURVIVAL_TARGETS)
                 .build();
 
-        /* In DL4J, we first configure the model, then we construct and
-         * initialize the actual model (including allocation of weights, etc.)
-         *
-         * We are using the ComputationGraph (CG) architecture, which is more
-         * flexible than the MultiLayerNetwork (MLN). The CG allows multiple
-         * inputs, multiple outputs (for, e.g., multitask learning), and multiple
-         * paths. However, it is a little more complex to understand and configure.
-         *
-         * In DL4J models, we typically set global (across all layers) configurations
-         * first, including things like random seed and optimization, then we add
-         * layers one at a time.
-         */
+        // Model configuration and initialization
         ComputationGraphConfiguration config = new NeuralNetConfiguration.Builder()
                 .seed(RANDOM_SEED) // fixing the random seed ensures reproducibility
                 .iterations(1) // ignored for SGD
@@ -217,12 +196,10 @@ public class MultitaskModel {
                 new StatsListener(statsStorage),
                 new PerformanceListener(10));
 
-        /* Model training involves two loops, an outer loop over epochs
-         * and an inner loop over minibatches. In DL4J, the inner loop
-         * can be implicit (handled inside the call to fit, as shown
-         * below) or explicit, as is demonstrated in the validation
-         * loop below.
-         */
+        // No GUI
+//        model.setListeners(new ScoreIterationListener(10));
+
+        // Model training
         for (int epoch = 0; epoch < NB_EPOCHS; epoch++) { // outer loop over epochs
             model.fit(trainData); // implicit inner loop over minibatches
 
@@ -260,7 +237,7 @@ public class MultitaskModel {
             validData.reset();
         }
 
-        // finally, loop over batches in test data to compute test AUC
+        // Model evaluation: loop over batches in test data to compute test AUC
         ROC rocMortality = new ROC(100);
         ROCMultiClass rocLos = new ROCMultiClass(100);
         ROCMultiClass rocSurvival = new ROCMultiClass(100);
