@@ -72,7 +72,7 @@ public class SingleTaskLosModel {
     public static final double LEARNING_RATE = 0.005;
     public static final int BATCH_SIZE = 32;
 
-    private static File baseDir = new File("/Users/davekale/data/physionet");
+    private static File baseDir = new File("src/main/resources/physionet2012");
     private static File featuresDir = new File(baseDir, "features");
     private static File labelsDir = new File(baseDir, "los_bucket");
 
