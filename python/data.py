@@ -24,6 +24,7 @@ def read_data_from_disk(input_dir, target_dirs=None, start=None, end=None):
         Y = [ _read_contents_of_dir(target_dirs) ]
     elif target_dirs is not None:
         Y = [ _read_contents_of_dir(dir) for dir in target_dirs ]
+    Y = [ y.ravel() if y.shape[1] == 1 else y for y in Y ]
 
     if start and end:
         X = X[start:end]
