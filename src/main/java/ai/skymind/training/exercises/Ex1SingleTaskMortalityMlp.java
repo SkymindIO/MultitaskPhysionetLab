@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 
-
 /**
  * EXERCISE 1: train an MLP to predict mortality using the Physionet
  * Challenge 2012 data publicly available at https://physionet.org/challenge/2012/
